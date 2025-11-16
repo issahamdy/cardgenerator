@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital ID Card Generator - Front & Back</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* h2.title {
+            color: #0077ff;
+            margin-bottom: 20px;
+        } */
+
+        .container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .form-section input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .form-section h3 {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #0077ff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #005fcc;
+        }
+
+        /* Card Container */
+        .card-container {
+            perspective: 1000px;
+            width: 650px;
+            height: 400px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back Cards */
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            /* border-radius: 16px; */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding-bottom: 12px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Card Templates with Background Images */
+        .card-front {
+            background: url('OPD.png') center/cover no-repeat;
+        }
+
+        /* 
+        .card-back {
+            background: url('b.jpeg') center/cover no-repeat;
+            position: relative;
+        } */
+
+        /* Front Card Details */
+        .card-details-front {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+
+        }
+
+
+        .detail-field {
+            position: absolute;
+            color: #000;
+            font-size: 16px;
+            padding: 2px 8px;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+
+
+        .field-label {
+            font-weight: normal;
+            color: #333;
+            margin-bottom: 1px;
+        }
+
+        .field-value {
+            color: #000;
+        }
+
+        /* Position front card fields */
+        .client-name {
+            top: 100px;
+            left: 50px;
+        }
+
+        .dob {
+            top: 150px;
+            left: 50px;
+        }
+
+        .date-issued {
+            top: 200px;
+            left: 50px;
+        }
+
+        .client-number {
+            top: 250px;
+            left: 50px;
+        }
+
+        .nhia-number {
+            top: 100px;
+            left: 300px;
+        }
+
+        /* {
+            top: 150px;
+            left: 300px;
+        } */
+
+        .gender {
+            top: 150px;
+            left: 300px;
+        }
+
+        .lhims-id {
+            top: 200px;
+            left: 300px;
+        }
+
+        .barcode {
+            position: absolute;
+            bottom: 20px;
+            left: 300px;
+            width: 280px;
+        }
+
+        /* Back Card Details */
+        .back-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .services-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 5px 0 15px 0;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex: 1;
+            border: 2px solid black;
+        }
+
+        .service-column {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .service-item {
+            font-size: 12.5px;
+            line-height: 1.5;
+            padding: 2px 6px;
+        }
+
+        .contact-section {
+            margin-top: auto;
+            padding-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .contact-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .another-contact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info,
+        .gps-phone,
+        .email,
+        .phone {
+            font-size: 12.5px;
+            line-height: 1.3;
+        }
+
+        .contact-info {
+            text-align: left;
+        }
+
+        .gps-phone,
+        .phone {
+            text-align: right;
+        }
+
+        .email {
+            text-align: left;
+        }
+
+        .card-controls {
+            display: flex;
+            gap: 10px;
+            transform: translateY(-100px);
+            margin-left: 300px;
+            /* transform: translateX(100px); */
+        }
+
+        .flip-btn {
+            background: #ff8800;
+        }
+
+        .flip-btn:hover {
+            background: #cc6600;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+                margin: 0;
+                padding: 0;
+            }
+
+            .card-details-front {
+                top: 30px;
+            }
+
+            .barcode {
+                position: absolute;
+                bottom: 20px;
+                left: 400px;
+                width: 280px;
+
+            }
+
+            .detail-field {
+                font-size: 16px;
+
+            }
+
+
+            .card-container,
+            .card-container * {
+                visibility: visible;
+            }
+
+            .card-container {
+                position: relative;
+                width: 700px;
+                height: 400px;
+                perspective: none;
+                transform: none;
+            }
+
+            .card-inner {
+                transform: none !important;
+                position: static;
+            }
+
+            /* .card-front,
+            .card-back {
+                position: relative;
+                transform: none;
+                backface-visibility: visible;
+                margin-bottom: 20px;
+                page-break-after: always;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+
+            } */
+
+            .form-section,
+            .title,
+            .print-btn,
+            .card-controls,
+            .flip-btn {
+                display: none !important;
+            }
+
+            @page {
+                margin: 0;
+                size: auto;
+            }
+        }
+
+        #downloadback {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2 class="title text-center mb-4 fw-bold">Mathias Catholic Hospital, Yeji</h2>
+
+    <div class="container">
+        <!-- Left: Form -->
+        <div class="form-section">
+            <h3>Enter Client Details</h3>
+            <h4>Front Side Details</h4>
+            <input type="text" id="clientName" placeholder="Client Name" class="form-control">
+            <input type="date" id="dob" placeholder="Date of Birth" class="form-control">
+            <input type="date" id="dateIssued" placeholder="Date Issued" class="form-control">
+            <input type="text" id="clientNumber" placeholder="Client Number" class="form-control">
+            <!-- <input type="text" id="opdNumber" placeholder="OPD Number" class="form-control"> -->
+            <input type="text" id="nhiaNumber" placeholder="NHIA Number" class="form-control">
+
+            <select name="" id="gender" class="form-select mb-3">
+                <option value="" selected>Gender</option>
+                <option value="Male">Male</option>
+                <option value="Femal">Female</option>
+            </select>
+
+            <input type="text" id="lhimsId" placeholder="LHIMS ID" value="BB-A06" class="form-control">
+            <button onclick="generateCard()">Preview Card</button>
+        </div>
+
+        <!-- Right: Card Preview -->
+        <div class="card-container" id="cardContainer">
+            <div class="card-inner">
+                <!-- Front Card -->
+                <div class="card-front" id="card-front">
+                    <div class="card-details-front">
+                        <!-- Left Column -->
+                        <div class="detail-field client-name">
+                            <div class="field-label">Client Name:</div>
+                            <div class="field-value" id="displayClientName">----</div>
+                        </div>
+                        <div class="detail-field dob">
+                            <div class="field-label">Date of Birth:</div>
+                            <div class="field-value" id="displayDOB">----</div>
+                        </div>
+                        <div class="detail-field date-issued">
+                            <div class="field-label">Date Issued:</div>
+                            <div class="field-value" id="displayIssued">----</div>
+                        </div>
+                        <div class="detail-field client-number">
+                            <div class="field-label">Client Number:</div>
+                            <div class="field-value" id="displayClientNum">----</div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <!-- <div class="detail-field opd-number">
+                            <div class="field-label">OPD Number:</div>
+                            <div class="field-value" id="displayOPD">----</div>
+                        </div> -->
+                        <div class="detail-field nhia-number">
+                            <div class="field-label">NHIA Number:</div>
+                            <div class="field-value" id="displayNHIA">----</div>
+                        </div>
+                        <div class="detail-field gender">
+                            <div class="field-label">Gender:</div>
+                            <div class="field-value" id="displayGender">----</div>
+                        </div>
+                        <div class="detail-field lhims-id mb-3">
+                            <div class="field-label">LHIMS ID:</div>
+                            <div class="field-value" id="displayLHIMS">----</div>
+                        </div>
+
+                        <!-- Barcode -->
+                    </div>
+                    <canvas class="barcode mt-4" id="barcode"></canvas>
+                </div>
+
+                <!-- Back Card -->
+                <div class="card-back" id="card-back">
+                    <div class="back-content">
+                        <!-- LIST OF SERVICES Title -->
+                        <div class="services-title">LIST OF SERVICES</div>
+
+                        <!-- Services Grid -->
+                        <div class="services-grid">
+                            <!-- Column 1 -->
+                            <div class="service-column">
+                                <div class="service-item">General OPD</div>
+                                <div class="service-item">In-Patient</div>
+                                <div class="service-item">ENT Services</div>
+                                <div class="service-item">Eye Care</div>
+                                <div class="service-item">Mental Health Care</div>
+                                <div class="service-item">Mortuary Services</div>
+                                <div class="service-item">Welfare Clinic</div>
+                                <div class="service-item">PMTCT</div>
+                                <div class="service-item">General Surgery</div>
+                            </div>
+
+                            <!-- Column 2 -->
+                            <div class="service-column">
+                                <div class="service-item">Pharmaceutical Care</div>
+                                <div class="service-item">Oral/Dental Services</div>
+                                <div class="service-item">NICU</div>
+                                <div class="service-item">Physiotherapy</div>
+                                <div class="service-item">Family Planning</div>
+                                <div class="service-item">Histopathology</div>
+                                <div class="service-item">Comprehensive Abortion Care</div>
+                                <div class="service-item">Anti-Retroviral Therapy</div>
+                                <div class="service-item">General Laboratory Services</div>
+                            </div>
+
+                            <!-- Column 3 -->
+                            <div class="service-column">
+                                <div class="service-item">X-Ray & Ultrasound</div>
+                                <div class="service-item">Cervical Cancer Screening</div>
+                                <div class="service-item">Diabetes & Hypertension</div>
+                                <div class="service-item">ANC, PNC, Labour & Delivery</div>
+                                <div class="service-item">Child Welfare Clinic</div>
+                                <div class="service-item">Obstetric & Gynaecology</div>
+                                <div class="service-item">24Hr Accident & Emergency</div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Section -->
+                        <div class="contact-section">
+                            <div class="contact-details">
+                                <div class="contact-info">
+                                    P.O. BOX 45, BUIPE,<br>
+                                    SAVANNA REGION
+                                </div>
+                                <div class="gps-phone">
+                                    GPS ADDRESS<br>
+                                    N3-0003-7363
+                                </div>
+                            </div>
+                            <div class="another-contact">
+                                <div class="email">
+                                    cgdhospital@gmail.com
+                                </div>
+                                <div class="phone">058 209 7233</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-controls">
+        <button class="flip-btn" onclick="flipCard()">🔄 Flip to Back Side</button>
+        <!-- <button onclick="window.print()">🖨️ Print Both Sides</button> -->
+        <button id="downloadfront" class="btn btn-primary "> downlaod front </button>
+        <button id="downloadback" class="btn btn-primary "> downlaod Back </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function generateCard() {
+
+            clientname = document.getElementById('clientName').value
+            dod = document.getElementById('dob').value
+            dateIss = document.getElementById('dateIssued').value
+            clientnum = document.getElementById('clientNumber').value
+            nhianum = document.getElementById('nhiaNumber').value
+            gender = document.getElementById('gender').value
+            limshId = document.getElementById('lhimsId').value.trim()
+
+            if (clientname == "" || dod == "" || dateIss == "" || clientnum == "" || nhianum == "" || gender == "" || limshId == "") {
+                Swal.fire({
+                    icon:"error",
+                    title:"Plaeas make sure to foll all the input" 
+                })
+                return;
+            }
+
+            // Front side details with labels preserved
+            document.getElementById('displayClientName').textContent = clientname || "----";
+            document.getElementById('displayDOB').textContent = dod || "----";
+            document.getElementById('displayIssued').textContent = dateIss;
+            document.getElementById('displayClientNum').textContent =
+                // document.getElementById('displayOPD').textContent = document.getElementById('opdNumber').value || "----";
+                document.getElementById('displayNHIA').textContent = nhianum;
+            document.getElementById('displayGender').textContent = gender || "----";
+            document.getElementById('displayLHIMS').textContent = limshId
+
+
+            if (limshId.length !== 10) {
+                alert("Please enter a valid ID 😊");
+                return;
+            }
+
+            JsBarcode("#barcode", limshId, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 20,
+                displayValue: true,
+                fontSize: 16
+            });
+            document.getElementById('clientName').value = ""
+            document.getElementById('dob').value = ""
+            document.getElementById('dateIssued').value = ""
+            document.getElementById('clientNumber').value = ""
+            document.getElementById('nhiaNumber').value = ""
+            document.getElementById('gender').value = ""
+            document.getElementById('lhimsId').value = "BB-A06-"
+
+
+        }
+
+
+        function flipCard() {
+            const cardContainer = document.getElementById('cardContainer');
+            const flipBtn = document.querySelector('.flip-btn');
+            const downloadFront = document.getElementById('downloadfront');
+            const downloadBack = document.getElementById('downloadback');
+
+            cardContainer.classList.toggle('flipped');
+
+            if (cardContainer.classList.contains('flipped')) {
+                // Back side visible
+                flipBtn.textContent = '🔄 Flip to Front Side';
+                downloadFront.style.display = 'none';
+                downloadBack.style.display = 'inline-block';
+            } else {
+
+                flipBtn.textContent = '🔄 Flip to Back Side';
+                downloadFront.style.display = 'inline-block';
+                downloadBack.style.display = 'none';
+            }
+        }
+
+        document.getElementById("downloadfront").addEventListener("click", function () {
+            card = document.getElementById('card-front')
+
+
+
+            html2canvas(card, {
+                allowTaint: true,
+                useCORS: true
+
+            }).then((canvas) => {
+                const downloadlink = document.createElement('a')
+                downloadlink.href = canvas.toDataURL('image/png')
+                downloadlink.download = "frontcard.png";
+                downloadlink.click()
+            })
+
+
+        });
+
+
+        document.getElementById("downloadback").addEventListener("click", function () {
+            const back_card = document.getElementById('card-back')
+            const off_front = document.getElementById('card-front')
+
+            back_card.style.transform = 'rotateY(0deg)';
+
+            html2canvas(back_card, {
+                allowTaint: true,
+                useCORS: true
+
+            }).then((canvas) => {
+                const downloadlink = document.createElement('a')
+                downloadlink.href = canvas.toDataURL('image/png')
+                downloadlink.download = "backcard.png";
+                downloadlink.click();
+                window.location.reload()
+            })
+
+        });
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+
+</html>
