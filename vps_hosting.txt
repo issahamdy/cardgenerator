@@ -1,0 +1,165 @@
+INSTATLLING REQUIREMENTS 
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Python and pip
+sudo apt install python3 python3-pip python3-venv -y
+
+# Install MySQL
+sudo apt install mysql-server -y
+
+# Install nginx (for later use)
+sudo apt install nginx -y
+
+# Install git
+sudo apt install git -y
+
+
+SETTINTUP MYSQL DB 
+# Secure MySQL installation
+sudo mysql_secure_installation
+
+# Login to MySQL
+sudo mysql -u root -p
+
+# In MySQL prompt, create database and user
+CREATE DATABASE djangodb;
+CREATE USER 'djangouser'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON djangodb.* TO 'djangouser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+CLOINING APP
+# If using git
+git clone your-repo-url
+
+# Or use SCP to copy files
+scp -r /path/to/your/django/project azureuser@YOUR_VM_IP:/home/azureuser/
+
+SETTINGUP VENV ON VM 
+# Create virtual environment
+python3 -m venv myenv
+source myenv/bin/activate
+
+# Install dependencies
+pip install django mysqlclient gunicorn
+
+# Navigate to your project
+cd your-django-project
+
+
+# Database configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'djangodb',
+        'USER': 'djangouser',
+        'PASSWORD': 'your_secure_password',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+
+# Allowed hosts
+ALLOWED_HOSTS = ['YOUR_VM_IP', 'localhost', '127.0.0.1']
+
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+MARKING MIGRATIONS 
+# In your project directory with virtual environment activated
+python manage.py makemigrations
+python manage.py migrate
+python manage.py collectstatic
+python manage.py createsuperuser
+
+
+Set Up Production with Gunicorn and Nginx
+sudo nano /etc/systemd/system/gunicorn.service
+"[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=azureuser
+Group=www-data
+WorkingDirectory=/home/azureuser/your-django-project
+ExecStart=/home/azureuser/myenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/azureuser/your-django-project/app.sock your_project.wsgi:application
+
+[Install]
+WantedBy=multi-user.target"
+
+
+
+Configure Nginx
+sudo nano /etc/nginx/sites-available/django
+"server {
+    listen 80;
+    server_name YOUR_VM_IP;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/azureuser/your-django-project;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/azureuser/your-django-project/app.sock;
+    }
+}"
+
+
+Enable the site and start services
+sudo ln -s /etc/nginx/sites-available/django /etc/nginx/sites-enabled
+sudo nginx -t
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+sudo systemctl restart nginx
+
+ Configure Firewall
+# Allow HTTP traffic
+sudo ufw allow 'Nginx Full'
+sudo ufw allow ssh
+sudo ufw enable
+
+
+
+TROUBLESHOING
+# Stop services
+sudo systemctl stop gunicorn
+sudo systemctl stop nginx
+
+# Remove old socket
+sudo rm -f /home/salim/mathias-/app.sock
+
+# Fix directory permissions
+sudo chown -R salim:www-data /home/salim/mathias-
+sudo chmod -R 775 /home/salim/mathias-
+
+# Restart gunicorn to create new socket
+sudo systemctl start gunicorn
+
+# Check new socket permissions
+sudo ls -la /home/salim/mathias-/app.sock
+
+# Fix socket permissions specifically
+sudo chown salim:www-data /home/salim/mathias-/app.sock
+sudo chmod 660 /home/salim/mathias-/app.sock
+
+# Restart nginx
+sudo systemctl start nginx
+
+#checking status 
+sudo systemctl status gunicorn
+sudo systemctl status nginx
+
+# Reload systemd
+sudo systemctl daemon-reload
+
+# Check gunicorn logs
+sudo journalctl -u gunicorn -n 20
+
+# Check nginx error logs
+sudo tail -f /var/log/nginx/error.log 	
